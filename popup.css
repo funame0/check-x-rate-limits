@@ -1,8 +1,8 @@
-#content {
+body {
   font-family: sans-serif;
 }
 
-th,
-td {
+table {
+  white-space: nowrap;
   text-align: right;
 }
