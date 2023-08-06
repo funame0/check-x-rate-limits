@@ -17,7 +17,19 @@ const updateLimitMap = ({ url, responseHeaders }) => {
   const remaining = responseHeaders.find(f("x-rate-limit-remaining"))?.value;
   if (remaining == null) return;
 
-  limitMap.set(endpoint, { limit, reset, remaining });
+  chrome.cookies.get({ url: "https://twitter.com/", name: "twid" }, twid => {
+    if (twid == null) console.warn('Cookie "twid" not found.');
+    const userid = twid?.value?.match(/\d+$/)?.[0];
+
+    limitMap.set(userid + " " + endpoint, {
+      endpoint,
+      limit,
+      reset,
+      remaining,
+      userid,
+    });
+    limitMap.set("$userid", userid);
+  });
 };
 
 chrome.webRequest.onResponseStarted.addListener(

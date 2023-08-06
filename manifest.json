@@ -8,5 +8,5 @@
   "background": {
     "scripts": ["background.js"]
   },
-  "permissions": ["*://*.twitter.com/*", "webRequest"]
+  "permissions": ["*://*.twitter.com/*", "webRequest", "cookies"]
 }

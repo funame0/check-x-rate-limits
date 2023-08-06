@@ -12,12 +12,16 @@ const unix2hhmm = unix => {
 
 chrome.runtime.onMessage.addListener(({ name, data }) => {
   if (name === "returnLimitData") {
-    const content = document.createElement("div");
-    content.setAttribute("id", "content");
+    const currentUserid = data.get("$userid");
+    document.getElementById("userinfo").textContent =
+      "User id: " + (currentUserid ?? "unknown");
 
     const table = document.createElement("table");
+    table.setAttribute("id", "table");
 
-    data.forEach(({ limit, reset, remaining }, endpoint) => {
+    data.forEach(({ endpoint, limit, reset, remaining, userid }, key) => {
+      if (key === "$userid" || userid !== currentUserid) return;
+
       const tr = document.createElement("tr");
 
       const th = document.createElement("th");
@@ -37,9 +41,7 @@ chrome.runtime.onMessage.addListener(({ name, data }) => {
       table.appendChild(tr);
     });
 
-    content.appendChild(table);
-
-    document.getElementById("content").replaceWith(content);
+    document.getElementById("table").replaceWith(table);
   }
 });
 
