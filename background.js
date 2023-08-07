@@ -1,7 +1,7 @@
 const limitData = {};
 let screenNameData = {};
 
-const updateLimitMap = ({ url, responseHeaders }) => {
+const update = ({ url, responseHeaders }) => {
   let endpoint = new URL(url).pathname;
   if (endpoint.includes("graphql"))
     endpoint = endpoint.substring(endpoint.lastIndexOf("/") + 1);
@@ -36,7 +36,7 @@ const updateLimitMap = ({ url, responseHeaders }) => {
 };
 
 chrome.webRequest.onResponseStarted.addListener(
-  updateLimitMap,
+  update,
   {
     urls: ["*://*.twitter.com/*"],
   },
