@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
-  "name": "Check X Rate Limits",
-  "version": "1.0.0",
-  "description": "Check rate limits of X (Twitter).",
+  "name": "Check X (Twitter) Rate Limits",
+  "version": "1.1.0",
+  "description": "Check API rate limit statuses of X (Twitter).",
   "icons": {
     "16": "icon16.png",
     "32": "icon32.png",
@@ -10,10 +10,19 @@
     "128": "icon128.png"
   },
   "browser_action": {
+    "default_title": "Check X Rate Limits",
     "default_popup": "popup.html"
   },
   "background": {
-    "scripts": ["background.js"]
+    "scripts": ["background.js"],
+    "persistent": false
   },
+  "content_scripts": [
+    {
+      "matches": ["*://twitter.com/*", "*://mobile.twitter.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_end"
+    }
+  ],
   "permissions": ["*://*.twitter.com/*", "webRequest", "cookies"]
 }
