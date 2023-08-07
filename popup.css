@@ -1,0 +1,22 @@
+body {
+  font-family: sans-serif;
+  font-size: 1rem;
+}
+
+p {
+  margin: 0;
+  text-align: center;
+}
+
+#userid {
+  font-weight: bold;
+}
+
+table {
+  white-space: nowrap;
+  text-align: right;
+}
+
+.align-left {
+  text-align: left;
+}
