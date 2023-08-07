@@ -57,4 +57,8 @@ const requestLimitData = () => {
   chrome.runtime.sendMessage({ name: "requestLimitData" });
 };
 
+document
+  .getElementById("reload-button")
+  .addEventListener("click", requestLimitData);
+
 requestLimitData();

@@ -4,11 +4,9 @@ body {
 
 p {
   margin: 0;
-}
-
-#userinfo {
   text-align: center;
 }
+
 #userid {
   font-weight: bold;
 }
