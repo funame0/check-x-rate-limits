@@ -10,55 +10,56 @@ const unix2hhmm = unix => {
   return `${date.getHours()}:${date.getMinutes().toString().padStart(2, "0")}`;
 };
 
-chrome.runtime.onMessage.addListener(({ name, limitData, screenNameData }) => {
-  if (name === "returnLimitData") {
-    const currentUserId = limitData.$userId;
-    const screenName = screenNameData[currentUserId];
+chrome.runtime.onMessage.addListener(
+  ({ name, limitData, screenNameData, currentUserId }) => {
+    if (name === "returnLimitData") {
+      const screenName = screenNameData[currentUserId];
 
-    document.getElementById("user").textContent =
-      screenName == null ? currentUserId ?? "unknown" : "@" + screenName;
+      document.getElementById("user").textContent =
+        screenName == null ? currentUserId ?? "unknown" : "@" + screenName;
 
-    const table = document.createElement("table");
-    table.setAttribute("id", "table");
+      const table = document.createElement("table");
+      table.setAttribute("id", "table");
 
-    const fragment = document.createDocumentFragment();
+      const fragment = document.createDocumentFragment();
 
-    Object.entries(limitData)
-      .sort(([, { endpoint: a }], [, { endpoint: b }]) =>
-        a < b ? -1 : a > b ? 1 : 0
-      )
-      .forEach(([key, { endpoint, limit, reset, remaining, userId }]) => {
-        if (key === "$userId" || userId !== currentUserId) return;
+      Object.entries(limitData)
+        .sort(([, { endpoint: a }], [, { endpoint: b }]) =>
+          a < b ? -1 : a > b ? 1 : 0
+        )
+        .forEach(([key, { endpoint, limit, reset, remaining, userId }]) => {
+          if (userId !== currentUserId) return;
 
-        const tr = document.createElement("tr");
+          const tr = document.createElement("tr");
 
-        const th = document.createElement("th");
-        const tds = [...Array(6)].map(() => document.createElement("td"));
+          const th = document.createElement("th");
+          const tds = [...Array(6)].map(() => document.createElement("td"));
 
-        const resetsAfter = reset - ((Date.now() / 1000) | 0);
+          const resetsAfter = reset - ((Date.now() / 1000) | 0);
 
-        th.textContent = endpoint;
-        tds[1].textContent = `/`;
-        tds[2].textContent = limit;
-        if (resetsAfter > 0) {
-          tds[0].textContent = remaining;
-          tds[3].textContent = "Resets after";
-          tds[4].textContent = formatElapsedSeconds(resetsAfter);
-        } else {
-          tds[3].textContent = "Reset at";
-        }
-        tds[3].classList.add("align-left");
-        tds[5].textContent = `(${unix2hhmm(reset)})`;
+          th.textContent = endpoint;
+          tds[1].textContent = `/`;
+          tds[2].textContent = limit;
+          if (resetsAfter > 0) {
+            tds[0].textContent = remaining;
+            tds[3].textContent = "Resets after";
+            tds[4].textContent = formatElapsedSeconds(resetsAfter);
+          } else {
+            tds[3].textContent = "Reset at";
+          }
+          tds[3].classList.add("align-left");
+          tds[5].textContent = `(${unix2hhmm(reset)})`;
 
-        tr.append(th, ...tds);
-        (resetsAfter > 0 ? table : fragment).appendChild(tr);
-      });
+          tr.append(th, ...tds);
+          (resetsAfter > 0 ? table : fragment).appendChild(tr);
+        });
 
-    table.appendChild(fragment);
+      table.appendChild(fragment);
 
-    document.getElementById("table").replaceWith(table);
+      document.getElementById("table").replaceWith(table);
+    }
   }
-});
+);
 
 const requestLimitData = () => {
   chrome.runtime.sendMessage({ name: "requestLimitData" });

@@ -1,5 +1,6 @@
 const limitData = {};
 let screenNameData = {};
+let currentUserId;
 
 const update = ({ url, responseHeaders }) => {
   let endpoint = new URL(url).pathname;
@@ -31,7 +32,7 @@ const update = ({ url, responseHeaders }) => {
       remaining,
       userId,
     };
-    limitData.$userId = userId;
+    currentUserId = userId;
   });
 };
 
@@ -49,6 +50,7 @@ chrome.runtime.onMessage.addListener(({ name, ...request }) => {
       name: "returnLimitData",
       limitData,
       screenNameData,
+      currentUserId,
     });
   } else if (name === "screenNameData") {
     screenNameData = Object.assign(screenNameData, request.screenNameData);
