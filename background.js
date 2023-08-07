@@ -1,4 +1,4 @@
-const limitMap = new Map();
+const limitData = {};
 
 const updateLimitMap = ({ url, responseHeaders }) => {
   let endpoint = new URL(url).pathname;
@@ -23,14 +23,14 @@ const updateLimitMap = ({ url, responseHeaders }) => {
     if (twid == null) console.warn('Cookie "twid" not found.');
     const userid = twid?.value?.match(/\d+$/)?.[0];
 
-    limitMap.set(userid + " " + endpoint, {
+    limitData[userid + " " + endpoint] = {
       endpoint,
       limit,
       reset,
       remaining,
       userid,
-    });
-    limitMap.set("$userid", userid);
+    };
+    limitData.$userid = userid;
   });
 };
 
@@ -46,7 +46,7 @@ chrome.runtime.onMessage.addListener(({ name }) => {
   if (name === "requestLimitData") {
     chrome.runtime.sendMessage({
       name: "returnLimitData",
-      data: limitMap,
+      limitData,
     });
   }
 });
