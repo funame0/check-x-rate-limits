@@ -7,7 +7,7 @@ const formatElapsedSeconds = sec => {
 
 const unix2hhmm = unix => {
   const date = new Date(1000 * unix);
-  return `${date.getHours()}:${date.getMinutes()}`;
+  return `${date.getHours()}:${date.getMinutes().toString().padStart(2, "0")}`;
 };
 
 chrome.runtime.onMessage.addListener(({ name, data }) => {
