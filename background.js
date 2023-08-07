@@ -1,6 +1,8 @@
 const limitData = {};
+let screenNameData = {};
+let currentUserId;
 
-const updateLimitMap = ({ url, responseHeaders }) => {
+const update = ({ url, responseHeaders }) => {
   let endpoint = new URL(url).pathname;
   if (endpoint.includes("graphql"))
     endpoint = endpoint.substring(endpoint.lastIndexOf("/") + 1);
@@ -21,32 +23,36 @@ const updateLimitMap = ({ url, responseHeaders }) => {
 
   chrome.cookies.get({ url: "https://twitter.com/", name: "twid" }, twid => {
     if (twid == null) console.warn('Cookie "twid" not found.');
-    const userid = twid?.value?.match(/\d+$/)?.[0];
+    const userId = twid?.value?.match(/\d+$/)?.[0];
 
-    limitData[userid + " " + endpoint] = {
+    limitData[userId + " " + endpoint] = {
       endpoint,
       limit,
       reset,
       remaining,
-      userid,
+      userId,
     };
-    limitData.$userid = userid;
+    currentUserId = userId;
   });
 };
 
 chrome.webRequest.onResponseStarted.addListener(
-  updateLimitMap,
+  update,
   {
     urls: ["*://*.twitter.com/*"],
   },
   ["responseHeaders"]
 );
 
-chrome.runtime.onMessage.addListener(({ name }) => {
+chrome.runtime.onMessage.addListener(({ name, ...request }) => {
   if (name === "requestLimitData") {
     chrome.runtime.sendMessage({
       name: "returnLimitData",
       limitData,
+      screenNameData,
+      currentUserId,
     });
+  } else if (name === "screenNameData") {
+    screenNameData = Object.assign(screenNameData, request.screenNameData);
   }
 });

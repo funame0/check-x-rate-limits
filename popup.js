@@ -10,53 +10,56 @@ const unix2hhmm = unix => {
   return `${date.getHours()}:${date.getMinutes().toString().padStart(2, "0")}`;
 };
 
-chrome.runtime.onMessage.addListener(({ name, limitData }) => {
-  console.log(name, limitData);
-  if (name === "returnLimitData") {
-    const currentUserid = limitData.$userid;
-    document.getElementById("userid").textContent = currentUserid ?? "unknown";
+chrome.runtime.onMessage.addListener(
+  ({ name, limitData, screenNameData, currentUserId }) => {
+    if (name === "returnLimitData") {
+      const screenName = screenNameData[currentUserId];
 
-    const table = document.createElement("table");
-    table.setAttribute("id", "table");
+      document.getElementById("user").textContent =
+        screenName ?? currentUserId ?? "unknown";
 
-    const fragment = document.createDocumentFragment();
+      const table = document.createElement("table");
+      table.setAttribute("id", "table");
 
-    Object.entries(limitData)
-      .sort(([, { endpoint: a }], [, { endpoint: b }]) =>
-        a < b ? -1 : a > b ? 1 : 0
-      )
-      .forEach(([key, { endpoint, limit, reset, remaining, userid }]) => {
-        if (key === "$userid" || userid !== currentUserid) return;
+      const fragment = document.createDocumentFragment();
 
-        const tr = document.createElement("tr");
+      Object.entries(limitData)
+        .sort(([, { endpoint: a }], [, { endpoint: b }]) =>
+          a < b ? -1 : a > b ? 1 : 0
+        )
+        .forEach(([key, { endpoint, limit, reset, remaining, userId }]) => {
+          if (userId !== currentUserId) return;
 
-        const th = document.createElement("th");
-        const tds = [...Array(6)].map(() => document.createElement("td"));
+          const tr = document.createElement("tr");
 
-        const resetsAfter = reset - ((Date.now() / 1000) | 0);
+          const th = document.createElement("th");
+          const tds = [...Array(6)].map(() => document.createElement("td"));
 
-        th.textContent = endpoint;
-        tds[1].textContent = `/`;
-        tds[2].textContent = limit;
-        if (resetsAfter > 0) {
-          tds[0].textContent = remaining;
-          tds[3].textContent = "Resets after";
-          tds[4].textContent = formatElapsedSeconds(resetsAfter);
-        } else {
-          tds[3].textContent = "Reset at";
-        }
-        tds[3].classList.add("align-left");
-        tds[5].textContent = `(${unix2hhmm(reset)})`;
+          const resetsAfter = reset - ((Date.now() / 1000) | 0);
 
-        tr.append(th, ...tds);
-        (resetsAfter > 0 ? table : fragment).appendChild(tr);
-      });
+          th.textContent = endpoint;
+          tds[1].textContent = `/`;
+          tds[2].textContent = limit;
+          if (resetsAfter > 0) {
+            tds[0].textContent = remaining;
+            tds[3].textContent = "Resets after";
+            tds[4].textContent = formatElapsedSeconds(resetsAfter);
+          } else {
+            tds[3].textContent = "Reset at";
+          }
+          tds[3].classList.add("align-left");
+          tds[5].textContent = `(${unix2hhmm(reset)})`;
 
-    table.appendChild(fragment);
+          tr.append(th, ...tds);
+          (resetsAfter > 0 ? table : fragment).appendChild(tr);
+        });
 
-    document.getElementById("table").replaceWith(table);
+      table.appendChild(fragment);
+
+      document.getElementById("table").replaceWith(table);
+    }
   }
-});
+);
 
 const requestLimitData = () => {
   chrome.runtime.sendMessage({ name: "requestLimitData" });
