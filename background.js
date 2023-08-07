@@ -1,7 +1,9 @@
 const limitMap = new Map();
 
 const updateLimitMap = ({ url, responseHeaders }) => {
-  const endpoint = new URL(url).pathname;
+  let endpoint = new URL(url).pathname;
+  if (endpoint.includes("graphql"))
+    endpoint = endpoint.substring(endpoint.lastIndexOf("/") + 1);
 
   const f =
     s =>

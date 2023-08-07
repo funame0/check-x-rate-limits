@@ -2,7 +2,18 @@ body {
   font-family: sans-serif;
 }
 
-table {
+p {
+  margin: 0;
+}
+
+#userinfo {
+  text-align: center;
+}
+#userid {
+  font-weight: bold;
+}
+
+#table {
   white-space: nowrap;
   text-align: right;
 }

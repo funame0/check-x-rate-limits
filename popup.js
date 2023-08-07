@@ -13,8 +13,7 @@ const unix2hhmm = unix => {
 chrome.runtime.onMessage.addListener(({ name, data }) => {
   if (name === "returnLimitData") {
     const currentUserid = data.get("$userid");
-    document.getElementById("userinfo").textContent =
-      "User id: " + (currentUserid ?? "unknown");
+    document.getElementById("userid").textContent = currentUserid ?? "unknown";
 
     const table = document.createElement("table");
     table.setAttribute("id", "table");
