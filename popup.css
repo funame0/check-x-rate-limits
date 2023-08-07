@@ -11,10 +11,11 @@ p {
   font-weight: bold;
 }
 
-#table {
+table {
   white-space: nowrap;
   text-align: right;
 }
+
 .align-left {
   text-align: left;
 }
