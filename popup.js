@@ -18,6 +18,8 @@ chrome.runtime.onMessage.addListener(({ name, data }) => {
     const table = document.createElement("table");
     table.setAttribute("id", "table");
 
+    const fragment = document.createDocumentFragment();
+
     data.forEach(({ endpoint, limit, reset, remaining, userid }, key) => {
       if (key === "$userid" || userid !== currentUserid) return;
 
@@ -42,8 +44,10 @@ chrome.runtime.onMessage.addListener(({ name, data }) => {
       tds[5].textContent = `(${unix2hhmm(reset)})`;
 
       tr.append(th, ...tds);
-      table.appendChild(tr);
+      (resetsAfter > 0 ? table : fragment).appendChild(tr);
     });
+
+    table.appendChild(fragment);
 
     document.getElementById("table").replaceWith(table);
   }
