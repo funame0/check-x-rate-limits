@@ -26,14 +26,19 @@ chrome.runtime.onMessage.addListener(({ name, data }) => {
       const th = document.createElement("th");
       const tds = [...Array(6)].map(() => document.createElement("td"));
 
+      const resetsAfter = reset - ((Date.now() / 1000) | 0);
+
       th.textContent = endpoint;
-      tds[0].textContent = remaining;
       tds[1].textContent = `/`;
       tds[2].textContent = limit;
-      tds[3].textContent = "Resets after";
-      tds[4].textContent = formatElapsedSeconds(
-        reset - ((Date.now() / 1000) | 0)
-      );
+      if (resetsAfter > 0) {
+        tds[0].textContent = remaining;
+        tds[3].textContent = "Resets after";
+        tds[4].textContent = formatElapsedSeconds(resetsAfter);
+      } else {
+        tds[3].textContent = "Resets at";
+      }
+      tds[3].classList.add("align-left");
       tds[5].textContent = `(${unix2hhmm(reset)})`;
 
       tr.append(th, ...tds);
