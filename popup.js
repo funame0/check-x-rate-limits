@@ -12,11 +12,11 @@ const unix2hhmm = unix => {
 
 chrome.runtime.onMessage.addListener(({ name, limitData, screenNameData }) => {
   if (name === "returnLimitData") {
-    const currentUserid = limitData.$userid;
-    const screenName = screenNameData[currentUserid];
+    const currentUserId = limitData.$userId;
+    const screenName = screenNameData[currentUserId];
 
-    document.getElementById("userid").textContent =
-      screenName == null ? currentUserid ?? "unknown" : "@" + screenName;
+    document.getElementById("user").textContent =
+      screenName == null ? currentUserId ?? "unknown" : "@" + screenName;
 
     const table = document.createElement("table");
     table.setAttribute("id", "table");
@@ -27,8 +27,8 @@ chrome.runtime.onMessage.addListener(({ name, limitData, screenNameData }) => {
       .sort(([, { endpoint: a }], [, { endpoint: b }]) =>
         a < b ? -1 : a > b ? 1 : 0
       )
-      .forEach(([key, { endpoint, limit, reset, remaining, userid }]) => {
-        if (key === "$userid" || userid !== currentUserid) return;
+      .forEach(([key, { endpoint, limit, reset, remaining, userId }]) => {
+        if (key === "$userId" || userId !== currentUserId) return;
 
         const tr = document.createElement("tr");
 

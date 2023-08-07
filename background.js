@@ -21,16 +21,16 @@ const updateLimitMap = ({ url, responseHeaders }) => {
 
   chrome.cookies.get({ url: "https://twitter.com/", name: "twid" }, twid => {
     if (twid == null) console.warn('Cookie "twid" not found.');
-    const userid = twid?.value?.match(/\d+$/)?.[0];
+    const userId = twid?.value?.match(/\d+$/)?.[0];
 
-    limitData[userid + " " + endpoint] = {
+    limitData[userId + " " + endpoint] = {
       endpoint,
       limit,
       reset,
       remaining,
-      userid,
+      userId,
     };
-    limitData.$userid = userid;
+    limitData.$userId = userId;
   });
 };
 
