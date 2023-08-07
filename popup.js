@@ -10,10 +10,9 @@ const unix2hhmm = unix => {
   return `${date.getHours()}:${date.getMinutes().toString().padStart(2, "0")}`;
 };
 
-chrome.runtime.onMessage.addListener(({ name, limitData }) => {
-  console.log(name, limitData);
+chrome.runtime.onMessage.addListener(({ name, data }) => {
   if (name === "returnLimitData") {
-    const currentUserid = limitData.$userid;
+    const currentUserid = data.$userid;
     document.getElementById("userid").textContent = currentUserid ?? "unknown";
 
     const table = document.createElement("table");
@@ -21,7 +20,7 @@ chrome.runtime.onMessage.addListener(({ name, limitData }) => {
 
     const fragment = document.createDocumentFragment();
 
-    Object.entries(limitData)
+    Object.entries(data)
       .sort(([, { endpoint: a }], [, { endpoint: b }]) =>
         a < b ? -1 : a > b ? 1 : 0
       )

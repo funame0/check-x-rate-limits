@@ -1,4 +1,5 @@
 const limitData = {};
+let screenNameData = {};
 
 const updateLimitMap = ({ url, responseHeaders }) => {
   let endpoint = new URL(url).pathname;
@@ -42,11 +43,11 @@ chrome.webRequest.onResponseStarted.addListener(
   ["responseHeaders"]
 );
 
-chrome.runtime.onMessage.addListener(({ name }) => {
+chrome.runtime.onMessage.addListener(({ name, data }) => {
   if (name === "requestLimitData") {
     chrome.runtime.sendMessage({
       name: "returnLimitData",
-      limitData,
+      data: limitData,
     });
   }
 });
