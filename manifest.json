@@ -1,5 +1,5 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "Check X Rate Limits",
   "version": "1.0.0",
   "description": "Check rate limits of X (Twitter).",
@@ -9,11 +9,12 @@
     "48": "icon48.png",
     "128": "icon128.png"
   },
-  "browser_action": {
+  "action": {
     "default_popup": "popup.html"
   },
   "background": {
-    "scripts": ["background.js"]
+    "service_worker": "background.js"
   },
-  "permissions": ["*://*.twitter.com/*", "webRequest", "cookies"]
+  "host_permissions": ["*://*.twitter.com/*"],
+  "permissions": ["webRequest", "cookies"]
 }
