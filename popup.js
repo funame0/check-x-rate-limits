@@ -16,7 +16,7 @@ chrome.runtime.onMessage.addListener(
       const screenName = screenNameData[currentUserId];
 
       document.getElementById("user").textContent =
-        screenName == null ? currentUserId ?? "unknown" : "@" + screenName;
+        screenName ?? currentUserId ?? "unknown";
 
       const table = document.createElement("table");
       table.setAttribute("id", "table");

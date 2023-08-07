@@ -9,7 +9,7 @@ const getScreenNameData = () => {
     return Object.fromEntries(
       Object.entries(
         JSON.parse(initialState)?.entities?.users?.entities ?? {}
-      ).map(([k, v]) => [k, v.screen_name])
+      ).map(([k, v]) => [k, "@" + v.screen_name])
     );
   } catch (e) {
     console.error(e);
