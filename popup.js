@@ -36,7 +36,7 @@ chrome.runtime.onMessage.addListener(({ name, data }) => {
         tds[3].textContent = "Resets after";
         tds[4].textContent = formatElapsedSeconds(resetsAfter);
       } else {
-        tds[3].textContent = "Resets at";
+        tds[3].textContent = "Reset at";
       }
       tds[3].classList.add("align-left");
       tds[5].textContent = `(${unix2hhmm(reset)})`;
