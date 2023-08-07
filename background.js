@@ -48,5 +48,7 @@ chrome.runtime.onMessage.addListener(({ name }) => {
       name: "returnLimitData",
       limitData,
     });
+  } else if (name === "screenNames") {
+    screenNameData = Object.assign(screenNameData, data);
   }
 });

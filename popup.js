@@ -10,11 +10,13 @@ const unix2hhmm = unix => {
   return `${date.getHours()}:${date.getMinutes().toString().padStart(2, "0")}`;
 };
 
-chrome.runtime.onMessage.addListener(({ name, limitData }) => {
-  console.log(name, limitData);
+chrome.runtime.onMessage.addListener(({ name, limitData, screenNameData }) => {
   if (name === "returnLimitData") {
     const currentUserid = limitData.$userid;
-    document.getElementById("userid").textContent = currentUserid ?? "unknown";
+    const screenName = screenNameData[currentUserid];
+
+    document.getElementById("userid").textContent =
+      screenName == null ? currentUserid ?? "unknown" : "@" + screenName;
 
     const table = document.createElement("table");
     table.setAttribute("id", "table");
