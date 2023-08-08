@@ -1,6 +1,12 @@
-const limitData = {};
-let screenNameData = {};
-let currentUserId;
+let limitData = {},
+  screenNameData = {},
+  currentUserId;
+
+chrome.storage.local.get(null, items => {
+  limitData = Object.assign(items.limitData, limitData);
+  screenNameData = Object.assign(items.screenNameData, screenNameData);
+  currentUserId ??= items.currentUserId;
+});
 
 const update = ({ url, responseHeaders }) => {
   let endpoint = new URL(url).pathname;
@@ -33,6 +39,7 @@ const update = ({ url, responseHeaders }) => {
       userId,
     };
     currentUserId = userId;
+    chrome.storage.local.set({ limitData, currentUserId });
   });
 };
 
@@ -54,5 +61,6 @@ chrome.runtime.onMessage.addListener(({ name, ...request }) => {
     });
   } else if (name === "screenNameData") {
     screenNameData = Object.assign(screenNameData, request.screenNameData);
+    chrome.storage.local.set({ screenNameData });
   }
 });
