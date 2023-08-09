@@ -31,7 +31,7 @@ const updateLimitTableElement = ({
         td(beforeReset ? obj.remaining : "-"),
         td("/"),
         td(obj.limit),
-        td(beforeReset ? "Resets after" : "Reset at", {
+        td(beforeReset ? chrome.i18n.getMessage("reset_after") : "", {
           className: "align-left",
         }),
         td(beforeReset ? formatSeconds(resetsAfter) : ""),
@@ -77,7 +77,11 @@ const formatSeconds = sec => {
   let min = (sec / 60) | 0;
   let hr = (min / 60) | 0;
 
-  return min ? (hr ? hr`${hr}h${min % 60}min` : `${min} min`) : `<1 min`;
+  return min
+    ? hr
+      ? chrome.i18n.getMessage("time_hmin", hr, min % 60)
+      : chrome.i18n.getMessage("time_min", min)
+    : chrome.i18n.getMessage("time_lessthan1min");
 };
 
 const unix2hhmm = unix => {
