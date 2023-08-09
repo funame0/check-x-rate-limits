@@ -3,20 +3,31 @@ body {
     Arial, sans-serif;
   font-size: 1rem;
   line-height: 1.2;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 p {
   margin: 0;
-  text-align: center;
-}
-
-#user {
-  font-weight: bold;
 }
 
 table {
   white-space: nowrap;
-  text-align: right;
+}
+
+#reload-button {
+  background: none;
+  border: none;
+}
+
+.regular {
+  font-weight: normal;
+}
+
+.semibold {
+  font-weight: 600;
 }
 
 .align-left {
@@ -25,4 +36,8 @@ table {
 
 .align-center {
   text-align: center;
+}
+
+.align-right {
+  text-align: right;
 }

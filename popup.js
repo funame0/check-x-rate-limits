@@ -1,6 +1,15 @@
-const th = t => Object.assign(document.createElement("th"), { textContent: t });
-const td = (textContent, object) =>
-  Object.assign(document.createElement("td"), { textContent }, object);
+const th = (textContent, className) =>
+  Object.assign(
+    document.createElement("td"),
+    { textContent },
+    className && { className }
+  );
+const td = (textContent, className) =>
+  Object.assign(
+    document.createElement("td"),
+    { textContent },
+    className && { className }
+  );
 
 const updateLimitTableElement = ({
   tableElement,
@@ -27,17 +36,19 @@ const updateLimitTableElement = ({
       );
 
       tr.append(
-        th(obj.endpoint),
+        th(obj.endpoint, beforeReset ? "semibold" : "regular"),
         td(beforeReset ? obj.remaining : "-"),
         td("/"),
         td(obj.limit),
-        td(beforeReset ? chrome.i18n.getMessage("reset_after") : "", {
-          className: "align-left",
-        }),
+        td(
+          beforeReset ? chrome.i18n.getMessage("reset_after") : "",
+          "align-left"
+        ),
         td(beforeReset ? formatSeconds(resetsAfter) : ""),
-        td(beforeReset ? `(${unix2hhmm(obj.reset)})` : unix2hhmm(obj.reset), {
-          className: "align-center",
-        })
+        td(
+          beforeReset ? `(${unix2hhmm(obj.reset)})` : unix2hhmm(obj.reset),
+          "align-center"
+        )
       );
       return tr;
     })
