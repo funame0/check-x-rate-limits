@@ -15,7 +15,11 @@
     "message": "Resets after"
   },
   "time_hmin": {
-    "message": "$1h$2min"
+    "message": "$hour$h$minute$min",
+    "placeholders": {
+      "hour": { "content": "$1" },
+      "minute": { "content": "$2" }
+    }
   },
   "time_min": {
     "message": "$1 min"
