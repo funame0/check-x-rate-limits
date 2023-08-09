@@ -79,8 +79,12 @@ const formatSeconds = sec => {
 
   return min
     ? hr
-      ? chrome.i18n.getMessage("time_hmin", hr, min % 60)
-      : chrome.i18n.getMessage("time_min", min)
+      ? chrome.i18n.getMessage(
+          "time_hmin",
+          hr.toString(),
+          (min % 60).toString()
+        )
+      : chrome.i18n.getMessage("time_min", min.toString())
     : chrome.i18n.getMessage("time_lessthan1min");
 };
 
