@@ -1,14 +1,19 @@
-let limitData = {},
-  screenNameData = {},
-  currentUserId;
+const tables = {
+  limit: {},
+  screenName: {},
+};
+let currentUserId;
 
 chrome.storage.local.get(null, items => {
-  limitData = Object.assign(items.limitData, limitData);
-  screenNameData = Object.assign(items.screenNameData, screenNameData);
+  tables.limit = Object.assign(items.tables.limit ?? {}, tables.limit);
+  tables.screenName = Object.assign(
+    items.tables.screenName ?? {},
+    tables.screenName
+  );
   currentUserId ??= items.currentUserId;
 });
 
-const update = ({ url, responseHeaders }) => {
+const updateData = ({ url, responseHeaders }) => {
   let endpoint = new URL(url).pathname;
   if (endpoint.includes("graphql"))
     endpoint = endpoint.substring(endpoint.lastIndexOf("/") + 1);
@@ -31,7 +36,7 @@ const update = ({ url, responseHeaders }) => {
     if (twid == null) console.warn('Cookie "twid" not found.');
     const userId = twid?.value?.match(/\d+$/)?.[0];
 
-    limitData[userId + " " + endpoint] = {
+    tables.limit[userId + " " + endpoint] = {
       endpoint,
       limit,
       reset,
@@ -39,28 +44,35 @@ const update = ({ url, responseHeaders }) => {
       userId,
     };
     currentUserId = userId;
-    chrome.storage.local.set({ limitData, currentUserId });
+    chrome.storage.local.set({
+      tables,
+      currentUserId,
+    });
   });
 };
 
 chrome.webRequest.onResponseStarted.addListener(
-  update,
+  updateData,
   {
     urls: ["*://*.twitter.com/*"],
   },
   ["responseHeaders"]
 );
 
-chrome.runtime.onMessage.addListener(({ name, ...request }) => {
-  if (name === "requestLimitData") {
+chrome.runtime.onMessage.addListener(({ name, data }) => {
+  if (name === "requestTables") {
     chrome.runtime.sendMessage({
-      name: "returnLimitData",
-      limitData,
-      screenNameData,
-      currentUserId,
+      name: "allTables",
+      data: {
+        tables,
+        currentUserId,
+      },
     });
-  } else if (name === "screenNameData") {
-    screenNameData = Object.assign(screenNameData, request.screenNameData);
-    chrome.storage.local.set({ screenNameData });
+  } else if (name === "screenNameTable") {
+    tables.screenName = Object.assign(
+      tables.screenName,
+      data.tables.screenName
+    );
+    chrome.storage.local.set({ tables });
   }
 });

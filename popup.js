@@ -1,4 +1,64 @@
-const formatElapsedSeconds = sec => {
+const th = t => Object.assign(document.createElement("th"), { textContent: t });
+const td = (textContent, object) =>
+  Object.assign(document.createElement("td"), { textContent }, object);
+
+const updateLimitTableElement = (tableElement, limitEntries, currentUserId) => {
+  // Remove all child elements of the table element
+  while (tableElement.firstChild) {
+    tableElement.removeChild(tableElement.firstChild);
+  }
+
+  tableElement.append(
+    ...limitEntries.map(([key, obj]) => {
+      if (obj.userId !== currentUserId) return;
+
+      const resetsAfter = obj.reset - ((Date.now() / 1000) | 0);
+      const beforeReset = resetsAfter > 0;
+
+      const tr = document.createElement("tr");
+      tr.id = key;
+      Object.entries(obj).forEach(
+        ([name, value]) => (tr.dataset[name] = value)
+      );
+
+      tr.append(
+        th(obj.endpoint),
+        td(beforeReset ? obj.remaining : "-"),
+        td("/"),
+        td(obj.limit),
+        td(beforeReset ? "Resets after" : "Reset at", {
+          className: "align-left",
+        }),
+        td(beforeReset ? formatSeconds(resetsAfter) : ""),
+        td(beforeReset ? `(${unix2hhmm(obj.reset)})` : obj.reset)
+      );
+      return tr;
+    })
+  );
+};
+
+const receiveMessage = ({ name, data }) => {
+  if (name === "allTables") {
+    updateLimitTableElement(
+      document.getElementById("limit-table"),
+      Object.entries(data.tables.limit).sort(
+        ([, { endpoint: a }], [, { endpoint: b }]) => (
+          ((a = a.replaceAll("/", "\uFFFF")),
+          (b = b.replaceAll("/", "\uFFFF"))),
+          a < b ? -1 : a > b ? 1 : 0
+        )
+      ),
+      data.currentUserId
+    );
+
+    const screenName = data.tables.screenName[data.currentUserId];
+
+    document.getElementById("user").textContent =
+      screenName ?? data.currentUserId ?? "unknown";
+  }
+};
+
+const formatSeconds = sec => {
   let min = (sec / 60) | 0;
   let hr = (min / 60) | 0;
 
@@ -10,63 +70,14 @@ const unix2hhmm = unix => {
   return `${date.getHours()}:${date.getMinutes().toString().padStart(2, "0")}`;
 };
 
-chrome.runtime.onMessage.addListener(
-  ({ name, limitData, screenNameData, currentUserId }) => {
-    if (name === "returnLimitData") {
-      const screenName = screenNameData[currentUserId];
+chrome.runtime.onMessage.addListener(receiveMessage);
 
-      document.getElementById("user").textContent =
-        screenName ?? currentUserId ?? "unknown";
-
-      const table = document.createElement("table");
-      table.setAttribute("id", "table");
-
-      const fragment = document.createDocumentFragment();
-
-      Object.entries(limitData)
-        .sort(([, { endpoint: a }], [, { endpoint: b }]) =>
-          a < b ? -1 : a > b ? 1 : 0
-        )
-        .forEach(([key, { endpoint, limit, reset, remaining, userId }]) => {
-          if (userId !== currentUserId) return;
-
-          const tr = document.createElement("tr");
-
-          const th = document.createElement("th");
-          const tds = [...Array(6)].map(() => document.createElement("td"));
-
-          const resetsAfter = reset - ((Date.now() / 1000) | 0);
-
-          th.textContent = endpoint;
-          tds[1].textContent = `/`;
-          tds[2].textContent = limit;
-          if (resetsAfter > 0) {
-            tds[0].textContent = remaining;
-            tds[3].textContent = "Resets after";
-            tds[4].textContent = formatElapsedSeconds(resetsAfter);
-          } else {
-            tds[3].textContent = "Reset at";
-          }
-          tds[3].classList.add("align-left");
-          tds[5].textContent = `(${unix2hhmm(reset)})`;
-
-          tr.append(th, ...tds);
-          (resetsAfter > 0 ? table : fragment).appendChild(tr);
-        });
-
-      table.appendChild(fragment);
-
-      document.getElementById("table").replaceWith(table);
-    }
-  }
-);
-
-const requestLimitData = () => {
-  chrome.runtime.sendMessage({ name: "requestLimitData" });
+const requestTables = () => {
+  chrome.runtime.sendMessage({ name: "requestTables" });
 };
 
 document
   .getElementById("reload-button")
-  .addEventListener("click", requestLimitData);
+  .addEventListener("click", requestTables);
 
-requestLimitData();
+requestTables();
