@@ -17,7 +17,7 @@ def build(build_target):
 
     os.makedirs("dist", exist_ok=True)
 
-    regex_ignored = r"README|mv[23].json|^dist|.py$"
+    regex_ignored = r"mv[23].json|^dist|.(md|py)$"
 
     with zipfile.ZipFile(f"dist/check-x-rate-limits-for-{build_target}.zip", "w") as zf:
         [
