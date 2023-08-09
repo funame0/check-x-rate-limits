@@ -8,7 +8,7 @@ import zipfile
 def build(build_target):
     if type(build_target) is not str:
         raise TypeError("build_target must be string")
-    if build_target == "firefox":
+    elif build_target == "firefox":
         manifest_file = "mv2.json"
     elif build_target == "chrome":
         manifest_file = "mv3.json"
