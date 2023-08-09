@@ -2,7 +2,12 @@ const th = t => Object.assign(document.createElement("th"), { textContent: t });
 const td = (textContent, object) =>
   Object.assign(document.createElement("td"), { textContent }, object);
 
-const updateLimitTableElement = (tableElement, limitEntries, currentUserId) => {
+const updateLimitTableElement = ({
+  tableElement,
+  limitEntries,
+  currentUserId,
+  unixNow,
+}) => {
   // Remove all child elements of the table element
   while (tableElement.firstChild) {
     tableElement.removeChild(tableElement.firstChild);
@@ -12,7 +17,7 @@ const updateLimitTableElement = (tableElement, limitEntries, currentUserId) => {
     ...limitEntries.map(([key, obj]) => {
       if (obj.userId !== currentUserId) return;
 
-      const resetsAfter = obj.reset - ((Date.now() / 1000) | 0);
+      const resetsAfter = obj.reset - unixNow;
       const beforeReset = resetsAfter > 0;
 
       const tr = document.createElement("tr");
@@ -39,17 +44,25 @@ const updateLimitTableElement = (tableElement, limitEntries, currentUserId) => {
 
 const receiveMessage = ({ name, data }) => {
   if (name === "allTables") {
-    updateLimitTableElement(
-      document.getElementById("limit-table"),
-      Object.entries(data.tables.limit).sort(
-        ([, { endpoint: a }], [, { endpoint: b }]) => (
-          ((a = a.replaceAll("/", "\uFFFF")),
-          (b = b.replaceAll("/", "\uFFFF"))),
-          a < b ? -1 : a > b ? 1 : 0
+    const unixNow = (Date.now() / 1000) | 0;
+
+    updateLimitTableElement({
+      tableElement: document.getElementById("limit-table"),
+      limitEntries: Object.entries(data.tables.limit)
+        .sort(
+          ([, { endpoint: a }], [, { endpoint: b }]) => (
+            ((a = a.replaceAll("/", "\uFFFF")),
+            (b = b.replaceAll("/", "\uFFFF"))),
+            a < b ? -1 : a > b ? 1 : 0
+          )
         )
-      ),
-      data.currentUserId
-    );
+        .sort(
+          ([, { reset: a }], [, { reset: b }]) =>
+            (b - unixNow > 0) - (a - unixNow > 0) // Endpoints that have been reset are shown behind
+        ),
+      currentUserId: data.currentUserId,
+      unixNow,
+    });
 
     const screenName = data.tables.screenName[data.currentUserId];
 
