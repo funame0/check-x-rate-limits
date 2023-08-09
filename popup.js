@@ -35,7 +35,7 @@ const updateLimitTableElement = ({
           className: "align-left",
         }),
         td(beforeReset ? formatSeconds(resetsAfter) : ""),
-        td(beforeReset ? `(${unix2hhmm(obj.reset)})` : obj.reset)
+        td(beforeReset ? `(${unix2hhmm(obj.reset)})` : unix2hhmm(obj.reset))
       );
       return tr;
     })

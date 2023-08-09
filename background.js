@@ -5,9 +5,9 @@ const tables = {
 let currentUserId;
 
 chrome.storage.local.get(null, items => {
-  tables.limit = Object.assign(items.tables.limit ?? {}, tables.limit);
+  tables.limit = Object.assign(items.tables?.limit ?? {}, tables.limit);
   tables.screenName = Object.assign(
-    items.tables.screenName ?? {},
+    items.tables?.screenName ?? {},
     tables.screenName
   );
   currentUserId ??= items.currentUserId;
