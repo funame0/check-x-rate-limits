@@ -7,10 +7,10 @@
 * [Firefox Extension](https://addons.mozilla.org/ja/firefox/addon/check-x-rate-limits/)
 * [Chrome Extension](https://chrome.google.com/webstore/detail/check-x-twitter-rate-limi/mnklaagioefjenpefkfcmlbbllfbnlmd)
 
-## License
-
-Released under the MIT License. See [LICENSE.txt](LICENSE.txt).
-
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md).
+
+## License
+
+Released under the MIT License. See [LICENSE.txt](LICENSE.txt).
