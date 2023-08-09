@@ -1,6 +1,6 @@
 {
   "ext_name": {
-    "message": "CXRL: Check X (Twitter) Rate Limits"
+    "message": "Check X (Twitter) Rate Limits"
   },
   "ext_desc": {
     "message": "Check API rate limit statuses of Twitter."
