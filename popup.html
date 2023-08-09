@@ -3,11 +3,12 @@
   <head>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="popup.css" />
+    <script defer src="localize.js"></script>
     <script defer src="popup.js"></script>
   </head>
   <body>
-    <p>User: <span id="user"></span></p>
-    <table id="table"></table>
-    <p><button id="reload-button">Reload</button></p>
+    <p><span data-localize>user</span>: <span id="user"></span></p>
+    <table id="limit-table"></table>
+    <p><button id="reload-button" data-localize>reload</button></p>
   </body>
 </html>
