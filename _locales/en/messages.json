@@ -22,7 +22,10 @@
     }
   },
   "time_min": {
-    "message": "$1 min"
+    "message": "$minute$ min",
+    "placeholders": {
+      "minute": { "content": "$1" }
+    }
   },
   "time_lessthan1min": {
     "message": "<1 min"

@@ -15,10 +15,17 @@
     "message": "リセットまで"
   },
   "time_hmin": {
-    "message": "$1時間$2分"
+    "message": "$hour$時間$minute$分",
+    "placeholders": {
+      "hour": { "content": "$1" },
+      "minute": { "content": "$2" }
+    }
   },
   "time_min": {
-    "message": "$1分"
+    "message": "$minute$分",
+    "placeholders": {
+      "minute": { "content": "$1" }
+    }
   },
   "time_lessthan1min": {
     "message": "1分以内"
