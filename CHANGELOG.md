@@ -16,6 +16,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 
 - Develop MV2 and MV3 on the same branch.
+- Set icon for Reload button, and moved it from bottom to top left.
+- Stop using sendMessage/onMessage, use chrome.storage
+- Remove permission for mobile.twitter.com as it doesn't seem to be used
 
 and other minor changes.
 
