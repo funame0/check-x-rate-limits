@@ -1,0 +1,33 @@
+{
+  "ext_name": {
+    "message": "Check X (Twitter) Rate Limits"
+  },
+  "ext_desc": {
+    "message": "Check API rate limit statuses of Twitter."
+  },
+  "user": {
+    "message": "User"
+  },
+  "reload": {
+    "message": "Reload"
+  },
+  "reset_after": {
+    "message": "Resets after"
+  },
+  "time_hmin": {
+    "message": "$hour$h$minute$min",
+    "placeholders": {
+      "hour": { "content": "$1" },
+      "minute": { "content": "$2" }
+    }
+  },
+  "time_min": {
+    "message": "$minute$ min",
+    "placeholders": {
+      "minute": { "content": "$1" }
+    }
+  },
+  "time_lessthan1min": {
+    "message": "<1 min"
+  }
+}

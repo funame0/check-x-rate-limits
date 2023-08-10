@@ -1,72 +1,122 @@
-const formatElapsedSeconds = sec => {
-  let min = (sec / 60) | 0;
-  let hr = (min / 60) | 0;
-
-  return min ? (hr ? hr`${hr}h${min % 60}min` : `${min} min`) : `<1 min`;
-};
-
-const unix2hhmm = unix => {
-  const date = new Date(1000 * unix);
-  return `${date.getHours()}:${date.getMinutes().toString().padStart(2, "0")}`;
-};
-
-chrome.runtime.onMessage.addListener(
-  ({ name, limitData, screenNameData, currentUserId }) => {
-    if (name === "returnLimitData") {
-      const screenName = screenNameData[currentUserId];
-
-      document.getElementById("user").textContent =
-        screenName ?? currentUserId ?? "unknown";
-
-      const table = document.createElement("table");
-      table.setAttribute("id", "table");
-
-      const fragment = document.createDocumentFragment();
-
-      Object.entries(limitData)
-        .sort(([, { endpoint: a }], [, { endpoint: b }]) =>
-          a < b ? -1 : a > b ? 1 : 0
-        )
-        .forEach(([key, { endpoint, limit, reset, remaining, userId }]) => {
-          if (userId !== currentUserId) return;
-
-          const tr = document.createElement("tr");
-
-          const th = document.createElement("th");
-          const tds = [...Array(6)].map(() => document.createElement("td"));
-
-          const resetsAfter = reset - ((Date.now() / 1000) | 0);
-
-          th.textContent = endpoint;
-          tds[1].textContent = `/`;
-          tds[2].textContent = limit;
-          if (resetsAfter > 0) {
-            tds[0].textContent = remaining;
-            tds[3].textContent = "Resets after";
-            tds[4].textContent = formatElapsedSeconds(resetsAfter);
-          } else {
-            tds[3].textContent = "Reset at";
-          }
-          tds[3].classList.add("align-left");
-          tds[5].textContent = `(${unix2hhmm(reset)})`;
-
-          tr.append(th, ...tds);
-          (resetsAfter > 0 ? table : fragment).appendChild(tr);
-        });
-
-      table.appendChild(fragment);
-
-      document.getElementById("table").replaceWith(table);
-    }
+const formatTimeMessage = (hr, min) => {
+  if (hr) {
+    return chrome.i18n.getMessage("time_hmin", [hr, min]);
+  } else if (min) {
+    return chrome.i18n.getMessage("time_min", [min]);
+  } else {
+    return chrome.i18n.getMessage("time_lessthan1min");
   }
-);
+};
 
-const requestLimitData = () => {
-  chrome.runtime.sendMessage({ name: "requestLimitData" });
+const sec2hmin = sec => {
+  let min = Math.floor(sec / 60);
+  let hr = Math.floor(min / 60);
+  min %= 60;
+  return [hr, min];
+};
+
+const unix2hhmm = unixtime => {
+  const date = new Date(1000 * unixtime);
+  const hours = date.getHours();
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+  return `${hours}:${minutes}`;
+};
+
+const createCell = (tagName, textContent, className) => {
+  const cell = document.createElement(tagName);
+  cell.textContent = textContent;
+  if (className) {
+    cell.className = className;
+  }
+  return cell;
+};
+
+const clearTableChildren = tableElement => {
+  while (tableElement.firstChild) {
+    tableElement.removeChild(tableElement.firstChild);
+  }
+};
+
+const createRow = (obj, currentUnixtime) => {
+  const resetsAfter = obj.reset - currentUnixtime;
+  const beforeReset = resetsAfter > 0;
+
+  const tr = document.createElement("tr");
+
+  Object.entries(obj).forEach(([name, value]) => (tr.dataset[name] = value));
+
+  tr.append(
+    createCell("th", obj.endpoint, beforeReset ? "semibold" : "regular"),
+    createCell("td", beforeReset ? obj.remaining : "-"),
+    createCell("td", "/"),
+    createCell("td", obj.limit),
+    createCell(
+      "td",
+      beforeReset ? chrome.i18n.getMessage("reset_after") : "",
+      "align-left"
+    ),
+    createCell(
+      "td",
+      beforeReset ? formatTimeMessage(...sec2hmin(resetsAfter)) : ""
+    ),
+    createCell(
+      "td",
+      beforeReset ? `(${unix2hhmm(obj.reset)})` : unix2hhmm(obj.reset),
+      "align-center"
+    )
+  );
+
+  return tr;
+};
+
+const updateTableElement = ({
+  tableElement,
+  limitValues,
+  currentUserId,
+  currentUnixtime,
+}) => {
+  clearTableChildren(tableElement);
+
+  const rows = limitValues
+    .filter(obj => obj.userId === currentUserId)
+    .sort(
+      (a, b) =>
+        (b.reset - currentUnixtime > 0) - (a.reset - currentUnixtime > 0) ||
+        a.endpoint.startsWith("/") - b.endpoint.startsWith("/") ||
+        a.endpoint.localeCompare(b.endpoint)
+    )
+    .map(obj => createRow(obj, currentUnixtime));
+
+  tableElement.append(...rows);
+};
+
+const refresh = store => {
+  const currentUnixtime = Math.floor(Date.now() / 1000);
+
+  if (store.limitTable) {
+    const tableElement = document.getElementById("limit-table");
+    const limitValues = Object.values(store.limitTable);
+
+    updateTableElement({
+      tableElement,
+      limitValues,
+      currentUserId: store.currentUserId,
+      currentUnixtime,
+    });
+  }
+
+  const screenName = store.screenNameTable?.[store.currentUserId];
+
+  document.getElementById("user").textContent =
+    screenName ?? store.currentUserId ?? "unknown";
+};
+
+const loadStoredAndRefresh = () => {
+  chrome.storage.local.get(null, refresh);
 };
 
 document
   .getElementById("reload-button")
-  .addEventListener("click", requestLimitData);
+  .addEventListener("click", loadStoredAndRefresh);
 
-requestLimitData();
+loadStoredAndRefresh();

@@ -1,23 +1,38 @@
-const getScreenNameData = () => {
-  const initialState = Array.from(document.scripts)
+const extractInitialState = () => {
+  const initialStateMatch = Array.from(document.scripts)
     .find(script => script.text.includes("__INITIAL_STATE__"))
     ?.text.match(/{.+?}(?=;)/)?.[0];
 
-  if (initialState == null) return {};
-
-  try {
-    return Object.fromEntries(
-      Object.entries(
-        JSON.parse(initialState)?.entities?.users?.entities ?? {}
-      ).map(([k, v]) => [k, "@" + v.screen_name])
-    );
-  } catch (e) {
-    console.error(e);
-    return {};
+  if (initialStateMatch) {
+    try {
+      const initialState = JSON.parse(initialStateMatch);
+      return initialState;
+    } catch (e) {
+      console.error(e);
+    }
   }
+  return {};
 };
 
-chrome.runtime.sendMessage({
-  name: "screenNameData",
-  screenNameData: getScreenNameData(),
-});
+const makeScreenNameTable = () => {
+  const screenNameTable = {};
+  const initialState = extractInitialState();
+  const entities = initialState?.entities?.users?.entities || {};
+
+  if (entities) {
+    for (const [key, { screen_name }] of Object.entries(entities)) {
+      screenNameTable[key] = "@" + screen_name;
+    }
+  }
+
+  return screenNameTable;
+};
+
+const updateAndStoreScreenNameTable = () => {
+  chrome.storage.local.get(null, ({ screenNameTable = {} }) => {
+    screenNameTable = Object.assign(screenNameTable, makeScreenNameTable());
+    chrome.storage.local.set({ screenNameTable });
+  });
+};
+
+updateAndStoreScreenNameTable();
