@@ -25,14 +25,14 @@ const getHeaderValue = (headers, name) =>
   headers.find(header => header.name === name)?.value;
 
 const updateData = ({ url, responseHeaders }) => {
-  const endpoint = extractEndpointFromURL(url);
-
   const limit = getHeaderValue(responseHeaders, "x-rate-limit-limit");
   if (limit != null) {
     const reset = getHeaderValue(responseHeaders, "x-rate-limit-reset");
     const remaining = getHeaderValue(responseHeaders, "x-rate-limit-remaining");
 
     if (reset != null && remaining != null) {
+      const endpoint = extractEndpointFromURL(url);
+
       chrome.cookies.get(
         { url: "https://twitter.com/", name: "twid" },
         twid => {
