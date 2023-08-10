@@ -1,4 +1,21 @@
-const createCellFn = tagName => (textContent, className) => {
+const formatTimeMessage = (hr, min) => {
+  if (hr) {
+    return chrome.i18n.getMessage("time_hmin", [hr, min]);
+  } else if (min) {
+    return chrome.i18n.getMessage("time_min", [min]);
+  } else {
+    return chrome.i18n.getMessage("time_lessthan1min");
+  }
+};
+
+const sec2hmin = sec => {
+  let min = Math.floor(sec / 60);
+  let hr = Math.floor(min / 60);
+  min %= 60;
+  return [hr, min];
+};
+
+const createCell = (tagName, textContent, className) => {
   const cell = document.createElement(tagName);
   cell.textContent = textContent;
   if (className) {
@@ -7,73 +24,77 @@ const createCellFn = tagName => (textContent, className) => {
   return cell;
 };
 
-const th = createCellFn("th");
-const td = createCellFn("td");
-
-const updateLimitTableElement = ({
-  tableElement,
-  limitEntries,
-  currentUserId,
-  unixNow,
-}) => {
-  // Remove all child elements of the table element
+const clearTableChildren = tableElement => {
   while (tableElement.firstChild) {
     tableElement.removeChild(tableElement.firstChild);
   }
+};
 
-  tableElement.append(
-    ...limitEntries.map(([key, obj]) => {
-      if (obj.userId !== currentUserId) return;
+const createRow = (obj, currentUnixtime) => {
+  const resetsAfter = obj.reset - currentUnixtime;
+  const beforeReset = resetsAfter > 0;
 
-      const resetsAfter = obj.reset - unixNow;
-      const beforeReset = resetsAfter > 0;
+  const tr = document.createElement("tr");
 
-      const tr = document.createElement("tr");
-      tr.id = key;
-      Object.entries(obj).forEach(
-        ([name, value]) => (tr.dataset[name] = value)
-      );
+  Object.entries(obj).forEach(([name, value]) => (tr.dataset[name] = value));
 
-      tr.append(
-        th(obj.endpoint, beforeReset ? "semibold" : "regular"),
-        td(beforeReset ? obj.remaining : "-"),
-        td("/"),
-        td(obj.limit),
-        td(
-          beforeReset ? chrome.i18n.getMessage("reset_after") : "",
-          "align-left"
-        ),
-        td(beforeReset ? formatSeconds(resetsAfter) : ""),
-        td(
-          beforeReset ? `(${unix2hhmm(obj.reset)})` : unix2hhmm(obj.reset),
-          "align-center"
-        )
-      );
-      return tr;
-    })
+  tr.append(
+    createCell("th", obj.endpoint, beforeReset ? "semibold" : "regular"),
+    createCell("td", beforeReset ? obj.remaining : "-"),
+    createCell("td", "/"),
+    createCell("td", obj.limit),
+    createCell(
+      "td",
+      beforeReset ? chrome.i18n.getMessage("reset_after") : "",
+      "align-left"
+    ),
+    createCell(
+      "td",
+      beforeReset ? formatTimeMessage(...sec2hmin(resetsAfter)) : ""
+    ),
+    createCell(
+      "td",
+      beforeReset ? `(${unix2hhmm(obj.reset)})` : unix2hhmm(obj.reset),
+      "align-center"
+    )
   );
+
+  return tr;
+};
+
+const updateLimitTableElement = ({
+  tableElement,
+  limitValues,
+  currentUserId,
+  currentUnixtime,
+}) => {
+  clearTableChildren(tableElement);
+
+  const rows = limitValues
+    .filter(obj => obj.userId === currentUserId)
+    .sort(
+      (a, b) =>
+        (b.reset - currentUnixtime > 0) - (a.reset - currentUnixtime > 0) ||
+        a.endpoint.startsWith("/") - b.endpoint.startsWith("/") ||
+        a.endpoint.localeCompare(b.endpoint)
+    )
+    .map(obj => createRow(obj, currentUnixtime));
+
+  tableElement.append(...rows);
 };
 
 const receiveMessage = ({ name, data }) => {
   if (name === "allTables") {
-    const unixNow = (Date.now() / 1000) | 0;
+    const currentUnixtime = Math.floor(Date.now() / 1000);
+
+    const tableElement = document.getElementById("limit-table");
+    const limitValues = Object.values(data.tables.limit);
 
     updateLimitTableElement({
-      tableElement: document.getElementById("limit-table"),
-      limitEntries: Object.entries(data.tables.limit)
-        .sort(
-          ([, { endpoint: a }], [, { endpoint: b }]) => (
-            ((a = a.replaceAll("/", "\uFFFF")),
-            (b = b.replaceAll("/", "\uFFFF"))),
-            a < b ? -1 : a > b ? 1 : 0
-          )
-        )
-        .sort(
-          ([, { reset: a }], [, { reset: b }]) =>
-            (b - unixNow > 0) - (a - unixNow > 0) // Endpoints that have been reset are shown behind
-        ),
+      tableElement,
+      limitValues,
       currentUserId: data.currentUserId,
-      unixNow,
+      currentUnixtime,
     });
 
     const screenName = data.tables.screenName[data.currentUserId];
@@ -83,24 +104,11 @@ const receiveMessage = ({ name, data }) => {
   }
 };
 
-const formatSeconds = sec => {
-  let min = (sec / 60) | 0;
-  let hr = (min / 60) | 0;
-
-  return min
-    ? hr
-      ? chrome.i18n.getMessage(
-          "time_hmin",
-          hr.toString(),
-          (min % 60).toString()
-        )
-      : chrome.i18n.getMessage("time_min", min.toString())
-    : chrome.i18n.getMessage("time_lessthan1min");
-};
-
-const unix2hhmm = unix => {
-  const date = new Date(1000 * unix);
-  return `${date.getHours()}:${date.getMinutes().toString().padStart(2, "0")}`;
+const unix2hhmm = unixtime => {
+  const date = new Date(1000 * unixtime);
+  const hours = date.getHours();
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+  return `${hours}:${minutes}`;
 };
 
 chrome.runtime.onMessage.addListener(receiveMessage);

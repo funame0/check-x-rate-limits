@@ -1,54 +1,67 @@
-const tables = {
-  limit: {},
-  screenName: {},
+const store = {
+  tables: {
+    limit: {},
+    screenName: {},
+  },
+  currentUserId: null,
 };
-let currentUserId;
 
-chrome.storage.local.get(null, items => {
-  tables.limit = Object.assign(items.tables?.limit ?? {}, tables.limit);
-  tables.screenName = Object.assign(
-    items.tables?.screenName ?? {},
-    tables.screenName
-  );
-  currentUserId ??= items.currentUserId;
-});
+const loadStoredData = () => {
+  chrome.storage.local.get(null, items => {
+    store.tables.limit = Object.assign(
+      items.tables?.limit ?? {},
+      store.tables.limit
+    );
+    store.tables.screenName = Object.assign(
+      items.tables?.screenName ?? {},
+      store.tables.screenName
+    );
+    store.currentUserId ??= items.currentUserId;
+  });
+};
+
+loadStoredData();
+
+const extractEndpointFromURL = url => {
+  let endpoint = new URL(url).pathname;
+  if (endpoint.includes("graphql")) {
+    endpoint = endpoint.substring(endpoint.lastIndexOf("/") + 1);
+  }
+
+  return endpoint;
+};
+
+const getHeaderValue = (headers, name) =>
+  headers.find(header => header.name === name)?.value;
 
 const updateData = ({ url, responseHeaders }) => {
-  let endpoint = new URL(url).pathname;
-  if (endpoint.includes("graphql"))
-    endpoint = endpoint.substring(endpoint.lastIndexOf("/") + 1);
+  const endpoint = extractEndpointFromURL(url);
 
   const f =
     s =>
     ({ name }) =>
       name === s;
 
-  const limit = responseHeaders.find(f("x-rate-limit-limit"))?.value;
-  if (limit == null) return;
+  const limit = getHeaderValue(responseHeaders, "x-rate-limit-limit");
+  const reset = getHeaderValue(responseHeaders, "x-rate-limit-reset");
+  const remaining = getHeaderValue(responseHeaders, "x-rate-limit-remaining");
 
-  const reset = responseHeaders.find(f("x-rate-limit-reset"))?.value;
-  if (reset == null) return;
+  if (limit != null && reset != null && remaining != null) {
+    chrome.cookies.get({ url: "https://twitter.com/", name: "twid" }, twid => {
+      if (twid == null) console.warn('Cookie "twid" not found.');
+      const userId = twid?.value?.match(/\d+$/)?.[0];
 
-  const remaining = responseHeaders.find(f("x-rate-limit-remaining"))?.value;
-  if (remaining == null) return;
-
-  chrome.cookies.get({ url: "https://twitter.com/", name: "twid" }, twid => {
-    if (twid == null) console.warn('Cookie "twid" not found.');
-    const userId = twid?.value?.match(/\d+$/)?.[0];
-
-    tables.limit[userId + " " + endpoint] = {
-      endpoint,
-      limit,
-      reset,
-      remaining,
-      userId,
-    };
-    currentUserId = userId;
-    chrome.storage.local.set({
-      tables,
-      currentUserId,
+      store.tables.limit[userId + " " + endpoint] = {
+        endpoint,
+        limit,
+        reset,
+        remaining,
+        userId,
+      };
+      store.currentUserId = userId;
+      chrome.storage.local.set(store);
     });
-  });
+  }
 };
 
 chrome.webRequest.onResponseStarted.addListener(
@@ -63,16 +76,13 @@ chrome.runtime.onMessage.addListener(({ name, data }) => {
   if (name === "requestTables") {
     chrome.runtime.sendMessage({
       name: "allTables",
-      data: {
-        tables,
-        currentUserId,
-      },
+      data: store,
     });
   } else if (name === "screenNameTable") {
-    tables.screenName = Object.assign(
-      tables.screenName,
+    store.tables.screenName = Object.assign(
+      store.tables.screenName,
       data.tables.screenName
     );
-    chrome.storage.local.set({ tables });
+    chrome.storage.local.set({ tables: store.tables });
   }
 });

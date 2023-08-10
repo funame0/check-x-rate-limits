@@ -1,20 +1,31 @@
-const makeScreenNameTable = () => {
-  const initialState = Array.from(document.scripts)
+const extractInitialState = () => {
+  const initialStateMatch = Array.from(document.scripts)
     .find(script => script.text.includes("__INITIAL_STATE__"))
     ?.text.match(/{.+?}(?=;)/)?.[0];
 
-  if (initialState != null) {
+  if (initialStateMatch) {
     try {
-      return Object.fromEntries(
-        Object.entries(
-          JSON.parse(initialState)?.entities?.users?.entities ?? {}
-        ).map(([k, v]) => [k, "@" + v.screen_name])
-      );
+      const initialState = JSON.parse(initialStateMatch);
+      return initialState;
     } catch (e) {
       console.error(e);
     }
   }
   return {};
+};
+
+const makeScreenNameTable = () => {
+  const screenNameTable = {};
+  const initialState = extractInitialState();
+  const entities = initialState?.entities?.users?.entities || {};
+
+  if (entities) {
+    for (const [key, { screen_name }] of Object.entries(entities)) {
+      screenNameTable[key] = "@" + screen_name;
+    }
+  }
+
+  return screenNameTable;
 };
 
 chrome.runtime.sendMessage({
