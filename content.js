@@ -28,7 +28,11 @@ const makeScreenNameTable = () => {
   return screenNameTable;
 };
 
-chrome.storage.local.get(null, ({ screenNameTable = {} }) => {
-  screenNameTable = Object.assign(screenNameTable, makeScreenNameTable());
-  chrome.storage.local.set({ screenNameTable });
-});
+const updateAndStoreScreenNameTable = () => {
+  chrome.storage.local.get(null, ({ screenNameTable = {} }) => {
+    screenNameTable = Object.assign(screenNameTable, makeScreenNameTable());
+    chrome.storage.local.set({ screenNameTable });
+  });
+};
+
+updateAndStoreScreenNameTable();
