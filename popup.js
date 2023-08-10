@@ -15,6 +15,13 @@ const sec2hmin = sec => {
   return [hr, min];
 };
 
+const unix2hhmm = unixtime => {
+  const date = new Date(1000 * unixtime);
+  const hours = date.getHours();
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+  return `${hours}:${minutes}`;
+};
+
 const createCell = (tagName, textContent, className) => {
   const cell = document.createElement(tagName);
   cell.textContent = textContent;
@@ -62,7 +69,7 @@ const createRow = (obj, currentUnixtime) => {
   return tr;
 };
 
-const updateLimitTableElement = ({
+const updateTableElement = ({
   tableElement,
   limitValues,
   currentUserId,
@@ -83,42 +90,33 @@ const updateLimitTableElement = ({
   tableElement.append(...rows);
 };
 
-const receiveMessage = ({ name, data }) => {
-  if (name === "allTables") {
-    const currentUnixtime = Math.floor(Date.now() / 1000);
+const refresh = store => {
+  const currentUnixtime = Math.floor(Date.now() / 1000);
 
+  if (store.limitTable) {
     const tableElement = document.getElementById("limit-table");
-    const limitValues = Object.values(data.tables.limit);
+    const limitValues = Object.values(store.limitTable);
 
-    updateLimitTableElement({
+    updateTableElement({
       tableElement,
       limitValues,
-      currentUserId: data.currentUserId,
+      currentUserId: store.currentUserId,
       currentUnixtime,
     });
-
-    const screenName = data.tables.screenName[data.currentUserId];
-
-    document.getElementById("user").textContent =
-      screenName ?? data.currentUserId ?? "unknown";
   }
+
+  const screenName = store.screenNameTable?.[store.currentUserId];
+
+  document.getElementById("user").textContent =
+    screenName ?? store.currentUserId ?? "unknown";
 };
 
-const unix2hhmm = unixtime => {
-  const date = new Date(1000 * unixtime);
-  const hours = date.getHours();
-  const minutes = date.getMinutes().toString().padStart(2, "0");
-  return `${hours}:${minutes}`;
-};
-
-chrome.runtime.onMessage.addListener(receiveMessage);
-
-const requestTables = () => {
-  chrome.runtime.sendMessage({ name: "requestTables" });
+const loadStoredAndRefresh = () => {
+  chrome.storage.local.get(null, refresh);
 };
 
 document
   .getElementById("reload-button")
-  .addEventListener("click", requestTables);
+  .addEventListener("click", loadStoredAndRefresh);
 
-requestTables();
+loadStoredAndRefresh();

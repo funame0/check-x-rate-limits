@@ -1,21 +1,11 @@
 const store = {
-  tables: {
-    limit: {},
-    screenName: {},
-  },
+  limitTable: {},
   currentUserId: null,
 };
 
 const loadStoredData = () => {
   chrome.storage.local.get(null, items => {
-    store.tables.limit = Object.assign(
-      items.tables?.limit ?? {},
-      store.tables.limit
-    );
-    store.tables.screenName = Object.assign(
-      items.tables?.screenName ?? {},
-      store.tables.screenName
-    );
+    store.limitTable = Object.assign(items.limitTable ?? {}, store.limitTable);
     store.currentUserId ??= items.currentUserId;
   });
 };
@@ -51,7 +41,7 @@ const updateData = ({ url, responseHeaders }) => {
       if (twid == null) console.warn('Cookie "twid" not found.');
       const userId = twid?.value?.match(/\d+$/)?.[0];
 
-      store.tables.limit[userId + " " + endpoint] = {
+      store.limitTable[userId + " " + endpoint] = {
         endpoint,
         limit,
         reset,
@@ -71,18 +61,3 @@ chrome.webRequest.onResponseStarted.addListener(
   },
   ["responseHeaders"]
 );
-
-chrome.runtime.onMessage.addListener(({ name, data }) => {
-  if (name === "requestTables") {
-    chrome.runtime.sendMessage({
-      name: "allTables",
-      data: store,
-    });
-  } else if (name === "screenNameTable") {
-    store.tables.screenName = Object.assign(
-      store.tables.screenName,
-      data.tables.screenName
-    );
-    chrome.storage.local.set({ tables: store.tables });
-  }
-});
