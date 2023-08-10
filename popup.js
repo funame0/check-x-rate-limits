@@ -1,15 +1,14 @@
-const th = (textContent, className) =>
-  Object.assign(
-    document.createElement("td"),
-    { textContent },
-    className && { className }
-  );
-const td = (textContent, className) =>
-  Object.assign(
-    document.createElement("td"),
-    { textContent },
-    className && { className }
-  );
+const createCellFn = tagName => (textContent, className) => {
+  const cell = document.createElement(tagName);
+  cell.textContent = textContent;
+  if (className) {
+    cell.className = className;
+  }
+  return cell;
+};
+
+const th = createCellFn("th");
+const td = createCellFn("td");
 
 const updateLimitTableElement = ({
   tableElement,
