@@ -1,5 +1,7 @@
 # Check X (Twitter) Rate Limits
 
+![](screenshots/en.png)
+
 **Check X (Twitter) Rate Limits** is a browser extension which shows API rate limit statuses of Twitter.
 
 ## Install
