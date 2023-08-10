@@ -33,24 +33,29 @@ const updateData = ({ url, responseHeaders }) => {
       name === s;
 
   const limit = getHeaderValue(responseHeaders, "x-rate-limit-limit");
-  const reset = getHeaderValue(responseHeaders, "x-rate-limit-reset");
-  const remaining = getHeaderValue(responseHeaders, "x-rate-limit-remaining");
+  if (limit != null) {
+    const reset = getHeaderValue(responseHeaders, "x-rate-limit-reset");
+    const remaining = getHeaderValue(responseHeaders, "x-rate-limit-remaining");
 
-  if (limit != null && reset != null && remaining != null) {
-    chrome.cookies.get({ url: "https://twitter.com/", name: "twid" }, twid => {
-      if (twid == null) console.warn('Cookie "twid" not found.');
-      const userId = twid?.value?.match(/\d+$/)?.[0];
+    if (reset != null && remaining != null) {
+      chrome.cookies.get(
+        { url: "https://twitter.com/", name: "twid" },
+        twid => {
+          if (twid == null) console.warn('Cookie "twid" not found.');
+          const userId = twid?.value?.match(/\d+$/)?.[0];
 
-      store.limitTable[userId + " " + endpoint] = {
-        endpoint,
-        limit,
-        reset,
-        remaining,
-        userId,
-      };
-      store.currentUserId = userId;
-      chrome.storage.local.set(store);
-    });
+          store.limitTable[userId + " " + endpoint] = {
+            endpoint,
+            limit,
+            reset,
+            remaining,
+            userId,
+          };
+          store.currentUserId = userId;
+          chrome.storage.local.set(store);
+        }
+      );
+    }
   }
 };
 
