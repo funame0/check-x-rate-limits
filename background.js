@@ -27,11 +27,6 @@ const getHeaderValue = (headers, name) =>
 const updateData = ({ url, responseHeaders }) => {
   const endpoint = extractEndpointFromURL(url);
 
-  const f =
-    s =>
-    ({ name }) =>
-      name === s;
-
   const limit = getHeaderValue(responseHeaders, "x-rate-limit-limit");
   if (limit != null) {
     const reset = getHeaderValue(responseHeaders, "x-rate-limit-reset");
