@@ -1,0 +1,12 @@
+{
+  "name": "check-x-rate-limits",
+  "scripts": {
+    "build": "cp src/manifest.v2.json src/manifest.json; rm -r dist/*; parcel build src/manifest.json; rm src/manifest.json"
+  },
+  "packageManager": "yarn@3.6.1",
+  "devDependencies": {
+    "@parcel/config-webextension": "^2.9.3",
+    "@parcel/core": "^2.9.3",
+    "parcel": "^2.9.3"
+  }
+}
