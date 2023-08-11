@@ -17,10 +17,7 @@
 
 ## Build
 
-Uses Node.js and Yarn.
-
-- with Manifest V2: Run `yarn build-v2`
-- with Manifest V3: Run `yarn build-v3`
+Run `yarn build` or `./build.sh`
 
 ## Changelog
 
