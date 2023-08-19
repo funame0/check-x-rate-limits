@@ -8,9 +8,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- Support for [OldTweetDeck](https://github.com/dimdenGD/OldTweetDeck).
+
 ### Changed
 
 - Develop and build with Parcel.
+- Changed the event used from `onResponseStarted` to `onHeadersReceived`.
+
+### Fixed
+
+- Fixed popup width too narrow on Chrome.
 
 ## [2.0.0] - 2023-08-10
 
