@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - Generate zip on build.
 - Change the reload icon.
+- Data older than 12 hours will be deleted.
 
 ### Fixed
 
