@@ -15,6 +15,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 
 - Generate zip on build.
+- Change the reload icon.
+
+### Fixed
+
+- The reload button tooltip was not translated correctly.
 
 ## [2.1.0] - 2023-08-19
 
