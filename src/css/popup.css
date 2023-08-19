@@ -39,6 +39,10 @@ table {
   border: none;
 }
 
+#reload-button svg {
+  fill: var(--color);
+}
+
 .regular {
   font-weight: normal;
 }
