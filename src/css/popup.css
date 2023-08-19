@@ -1,9 +1,23 @@
+:root {
+  --bg-color: #fff;
+  --color: #38444d;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #15202b;
+    --color: #fff;
+  }
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
     Arial, sans-serif;
   font-size: 1rem;
   line-height: 1.2;
   min-width: max-content;
+
+  background-color: var(--bg-color);
+  color: var(--color);
 }
 
 .flexbox-container {
