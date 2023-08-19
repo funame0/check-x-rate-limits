@@ -54,7 +54,7 @@ const updateData = ({ url, responseHeaders }) => {
   }
 };
 
-chrome.webRequest.onResponseStarted.addListener(
+chrome.webRequest.onHeadersReceived.addListener(
   updateData,
   {
     urls: ["*://*.twitter.com/*"],
