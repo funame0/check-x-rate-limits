@@ -23,6 +23,6 @@
       "run_at": "document_end"
     }
   ],
-  "host_permissions": ["*://*.twitter.com/*"],
+  "host_permissions": ["*://*.twitter.com/*", "*://tweetdeck.dimden.dev/*"],
   "permissions": ["webRequest", "cookies", "storage"]
 }
