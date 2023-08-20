@@ -17,7 +17,13 @@
 
 ## Build
 
-Run `yarn build` or `./build.sh`
+Requires Node.js and Yarn v3.
+
+1. Make sure you are at the root of the repository.
+2. Run `yarn install` to install the required packages.
+3. Run `yarn build` in the root directory of this repository will generate builds.
+   - The build files for Firefox (MV2) are in `dist/v2/build/`.
+   - The build files for Chrome (MV3) are in `dist/v3/build/`.
 
 ## Changelog
 

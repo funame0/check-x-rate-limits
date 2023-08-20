@@ -90,7 +90,13 @@ const updateTableElement = ({
   tableElement.append(...rows);
 };
 
+const removeOldData = sec => {
+  chrome.runtime.sendMessage({ name: "removeOldData", data: sec });
+};
+
 const refresh = store => {
+  removeOldData(43200);
+
   const currentUnixtime = Math.floor(Date.now() / 1000);
 
   if (store.limitTable) {

@@ -12,6 +12,14 @@ const loadStoredData = () => {
 
 loadStoredData();
 
+const removeOldData = sec => {
+  for (const [key, obj] of store.limitTable.entries()) {
+    if (Math.floor(Date.now() / 1000) - obj.reset >= sec) {
+      delete store.limitTable[key];
+    }
+  }
+};
+
 const extractEndpointFromURL = url => {
   let endpoint = new URL(url).pathname;
   if (endpoint.includes("graphql")) {
@@ -61,3 +69,9 @@ chrome.webRequest.onHeadersReceived.addListener(
   },
   ["responseHeaders"]
 );
+
+chrome.runtime.onMessage.addListener(request => {
+  if (request.name === "removeOldData") {
+    removeOldData(request.data);
+  }
+});

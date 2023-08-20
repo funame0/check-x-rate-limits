@@ -1,14 +1,29 @@
+:root {
+  --bg-color: #fff;
+  --color: #030303;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #030303;
+    --color: #fff;
+  }
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
     Arial, sans-serif;
   font-size: 1rem;
   line-height: 1.2;
+  min-width: max-content;
 
+  background-color: var(--bg-color);
+  color: var(--color);
+}
+
+.flexbox-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-
-  width: 640px;
 }
 
 p {
@@ -22,6 +37,10 @@ table {
 #reload-button {
   background: none;
   border: none;
+}
+
+#reload-button svg {
+  fill: var(--color);
 }
 
 .regular {
