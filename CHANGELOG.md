@@ -8,6 +8,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [2.2.1] - 2023-08-21
+
+### Fixed
+
+- Fixed removeOldData() in background.js: "TypeError: store.limitTable.entries is not a function"
+
 ## [2.2.0] - 2023-08-20
 
 ### Added
@@ -75,7 +81,8 @@ and other minor changes.
 
 - Gets and displays status of API limits from response headers.
 
-[unreleased]: https://github.com/funame0/check-x-rate-limits/compare/v2.2.0...HEAD
+[unreleased]: https://github.com/funame0/check-x-rate-limits/compare/v2.2.1...HEAD
+[2.2.1]: https://github.com/funame0/check-x-rate-limits/compare/v2.2.0...v2.2.1
 [2.2.0]: https://github.com/funame0/check-x-rate-limits/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/funame0/check-x-rate-limits/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/funame0/check-x-rate-limits/compare/v1.1.0...v2.0.0
