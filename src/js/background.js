@@ -13,7 +13,7 @@ const loadStoredData = () => {
 loadStoredData();
 
 const removeOldData = sec => {
-  for (const [key, obj] of store.limitTable.entries()) {
+  for (const [key, obj] of Object.entries(store.limitTable)) {
     if (Math.floor(Date.now() / 1000) - obj.reset >= sec) {
       delete store.limitTable[key];
     }
